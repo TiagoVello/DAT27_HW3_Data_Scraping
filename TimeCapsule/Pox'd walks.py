@@ -1,15 +1,10 @@
 import pandas as pd
+import requests
 
-print ("Type 'V add' to insert a new game to the database")
-print ("Type 'N g' to change the number of Grumbles played")
-print ("Type 'N z' to change the number of Zolas played")
-print ("Type 'N s' to change the number of Saronites played")
-print ("Type 'N c' to change the number of free card slots in your hand")
-print ("Type 'N b' to change the number of minions in your bord")
-print ("Type 'N p' to change the number of Primordial Drakes played")
-print ("Type 'N h' to change the number of Hagathas played")
+with open('Vello vs. AaronCatalan - HSReplay.net', 'r') as f:
+    html = f.read()
 
-v = 11
+
 g = 0
 z = 0
 s = 0
@@ -18,7 +13,8 @@ b = 0
 p = 0
 h = 0
 new_row = [0,0,0,0,0,0,0,0,0]
-golden = 0
+
+
  
 d = {'Golden': [0],'Grumbled': [0], 'Grumble': [0], 'Zola': [0],'Saronite': [0],
       'Primordial': [0], 'Hagatha': [0],'Card': [0] , 'Board': [0]}
