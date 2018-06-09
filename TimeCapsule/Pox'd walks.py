@@ -1,8 +1,31 @@
 import pandas as pd
-import requests
+import requests     
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from bs4 import BeautifulSoup
 
-with open('Vello vs. AaronCatalan - HSReplay.net', 'r') as f:
-    html = f.read()
+def get_url ():
+    browser = webdriver.Chrome('chromedriver.exe')
+    browser.implicitly_wait(2)
+    browser.get(r'http://cadastro.cfp.org.br/siscafweb/carregaConselho.do?tipoAcesso=4&s=1&tipoConsulta=pf&controle=0&sigla=cfp&ini=1')
+    browser.find_element_by_xpath(
+            r'/html/body/div/div/form/p[1]/button'
+            ).click()
+    inputbox = browser.find_element_by_xpath(
+    r'//*[@id="accountName"]')
+    inputbox.send_keys('tiago.vello@gmail.com')
+    inputbox = browser.find_element_by_xpath(
+    r'//*[@id="password"]')
+    inputbox.send_keys('T31g4V2ll4')
+    browser.find_element_by_xpath(
+            r'//*[@id="submit"]'
+            ).click()
+
+def get_info (url):
+    r.request = (url)
+
+    b = BeautifulSoup(html)
+    b.find('p')
 
 
 g = 0
