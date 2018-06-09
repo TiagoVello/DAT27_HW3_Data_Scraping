@@ -1,22 +1,15 @@
-import pandas
-import requests     
+import pandas    
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-#regioes = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
-regioes = ['01']
-stop_item = '\nTotal de Registros:'
-colunas = ['N° Registro', 'Nome', 'Data', 'Situação', 'Região']
-dado = []
-registro = []
-nome = []
-data = []
-situacao = []
-localizacao = []
-data_frame = pandas.DataFrame(columns=colunas)
-
 def add_to_data_frame(dado):
     global data_frame
+    global colunas
+    registro = []
+    nome = []
+    data = []
+    situacao = []
+    localizacao = []
     for item in range(len(dado)):
         if (item%5 == 0):
             registro.append(dado[item])
@@ -33,29 +26,51 @@ def add_to_data_frame(dado):
     data_frame = data_frame.append(pagina_dado, ignore_index=True)
     return
 
-browser = webdriver.Chrome('chromedriver.exe')
-browser.implicitly_wait(2)
+# Retorna o índice da ultima pagina de cada localização
+def last_page_index():
+    index = browser.find_element_by_xpath(r'/html/body/table[4]/tbody/tr/td/table/tbody/tr/td[3]/font/a[2]').get_attribute('href')[-16:-11]
+    index = index.replace('a','')
+    index = index.replace('n','')
+    index = int(index.replace('=',''))
+    return index
 
-for regiao in regioes:
-    browser.get(r'http://cadastro.cfp.org.br/siscafweb/carregaConselho.do?tipoAcesso=4&s=1&tipoConsulta=pf&controle=0&sigla=cfp&ini=1')
-    inputbox = browser.find_element_by_xpath(r'//*[@id="regiaoConselho"]')   
-    inputbox.send_keys(regioes)
-    inputbox.send_keys(Keys.ENTER)
-    browser.find_element_by_xpath(r'//*[@id="btnSubmitForm"]').click()
+# Retorna uma base de dados com todos os Psicólogos do Brasil
+def data(): 
+    
+    regioes = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10','11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21','22', '23']
+    stop_item = '\nTotal de Registros:'
+    colunas = ['N° Registro', 'Nome', 'Data', 'Situação', 'Região']
+    
+    browser = webdriver.Chrome('chromedriver.exe')
     browser.implicitly_wait(2)
-    for page in range(2):
-        info = browser.find_elements_by_tag_name('td')
-        counter = 0
-        for item in info:
-            if (stop_item in item.text):
-                break
-            if (counter > 4):
-                dado.append(item.text)
-            counter += 1
-        add_to_data_frame(dado)
-        browser.find_element_by_xpath(r'/html/body/table[4]/tbody/tr/td/table/tbody/tr/td[3]/font/a[1]').click()
-        browser.implicitly_wait(2)
-browser.close()
+    data_frame = pandas.DataFrame(columns=colunas)
 
+    for regiao in regioes:
+        
+        # Entra no site raiz e faz uma busca por região
+        browser.get(r'http://cadastro.cfp.org.br/siscafweb/carregaConselho.do?tipoAcesso=4&s=1&tipoConsulta=pf&controle=0&sigla=cfp&ini=1')
+        browser.implicitly_wait(0.5)
+        inputbox = browser.find_element_by_xpath(r'//*[@id="regiaoConselho"]')   
+        inputbox.send_keys(regiao)
+        inputbox.send_keys(Keys.ENTER)
+        browser.find_element_by_xpath(r'//*[@id="btnSubmitForm"]').click()
+        
+        # busca os dados, formata eles e monta uma tabela 
+        for page in range(last_page_index()):
+            info = browser.find_elements_by_tag_name('td')
+            counter = 0
+            dado = []
+            for item in info:
+                if (stop_item in item.text):
+                    break
+                if (counter > 4):
+                    dado.append(item.text)
+                counter += 1
+            add_to_data_frame(dado)
+            if (page != last_page_index):
+                browser.find_element_by_xpath(r'/html/body/table[4]/tbody/tr/td/table/tbody/tr/td[3]/font/a[1]').click()
+                
+    browser.close()
+    return data_frame
 
         
