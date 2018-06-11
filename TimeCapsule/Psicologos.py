@@ -1,6 +1,11 @@
+
+
 import pandas    
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.keys import Keys    
+
+browser = webdriver.Chrome('chromedriver.exe')
+browser.implicitly_wait(0.5)
 
 def add_to_data_frame(dado):
     global data_frame
@@ -28,6 +33,7 @@ def add_to_data_frame(dado):
 
 # Retorna o índice da ultima pagina de cada localização
 def last_page_index():
+    global browser
     index = browser.find_element_by_xpath(r'/html/body/table[4]/tbody/tr/td/table/tbody/tr/td[3]/font/a[2]').get_attribute('href')[-16:-11]
     index = index.replace('a','')
     index = index.replace('n','')
@@ -37,12 +43,11 @@ def last_page_index():
 # Retorna uma base de dados com todos os Psicólogos do Brasil
 def data(): 
     
-    regioes = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10','11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21','22', '23']
+    regioes = [ '06', '02', '03', '04', '05', '07', '08', '09', '10','11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21','22', '23']
     stop_item = '\nTotal de Registros:'
     colunas = ['N° Registro', 'Nome', 'Data', 'Situação', 'Região']
     
-    browser = webdriver.Chrome('chromedriver.exe')
-    browser.implicitly_wait(2)
+
     data_frame = pandas.DataFrame(columns=colunas)
 
     for regiao in regioes:
@@ -55,8 +60,9 @@ def data():
         inputbox.send_keys(Keys.ENTER)
         browser.find_element_by_xpath(r'//*[@id="btnSubmitForm"]').click()
         
-        # busca os dados, formata eles e monta uma tabela 
-        for page in range(last_page_index()):
+        # busca os dados, formata eles e monta uma tabela
+        last_page = last_page_index() - 1
+        for page in range(last_page):
             info = browser.find_elements_by_tag_name('td')
             counter = 0
             dado = []
