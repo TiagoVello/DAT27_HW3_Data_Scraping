@@ -1,5 +1,3 @@
-
-
 import pandas    
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys    
@@ -12,7 +10,7 @@ def add_to_data_frame(dado):
     global colunas
     registro = []
     nome = []
-    data = []
+    dia = []
     situacao = []
     localizacao = []
     for item in range(len(dado)):
@@ -21,12 +19,12 @@ def add_to_data_frame(dado):
         elif (item%5 == 1):
             nome.append(dado[item])
         elif (item%5 == 2):
-            data.append(dado[item])
+            dia.append(dado[item])
         elif (item%5 == 3):
             situacao.append(dado[item])
         elif (item%5 == 4):
             localizacao.append(dado[item])
-    dado_lista = [registro, nome, data, situacao, localizacao]
+    dado_lista = [registro, nome, dia, situacao, localizacao]
     pagina_dado = pandas.DataFrame(dict(zip(colunas, dado_lista)))
     data_frame = data_frame.append(pagina_dado, ignore_index=True)
     return
@@ -79,4 +77,17 @@ def data():
     browser.close()
     return data_frame
 
-        
+# Cleaning the data
+save = [0,0,0,0,0,0,0]
+for i in range(1,6):
+    save[i] = pandas.read_csv('save {}.csv'.format(i))
+
+data = pandas.DataFrame(columns=colunas)
+data = pandas.concat([save[1], save[2], save[3], save[4], save[5]], ignore_index = True)
+
+data.drop_duplicates(inplace = True)
+data = data[data['Situação'].str.contains('Ativo')]
+data = data[data['Nome']!=' ']
+data = data[data['N° Registro'] != ' ']
+
+data.to_csv('Pscicologos.csv')
